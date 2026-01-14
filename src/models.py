@@ -6,14 +6,19 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__ = "user"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     username: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
 
     favorites: Mapped[list["Favorites"]] = relationship(back_populates="user")
+    user: Mapped ["User"] = relationship(back_populates="favorites")
 
 class Planet(db.Model):
+    __tablename__ = "planet"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(20), nullable=False)
     climate: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -23,6 +28,9 @@ class Planet(db.Model):
     favorites: Mapped[list["Favorites"]] = relationship(back_populates="planet")
 
 class People(db.Model):
+
+    __tablename__ = "people"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(20), nullable=False)
     gender: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -32,19 +40,22 @@ class People(db.Model):
     favorites: Mapped[list["Favorites"]] = relationship(back_populates="people")
 
 class Favorites(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    userid: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
-    planetid: Mapped[int] = mapped_column(ForeignKey('planet.id'), nullable=False)    
-    peopleid: Mapped[int] = mapped_column(ForeignKey('people.id'), nullable=False)    
 
-    planet:Mapped["Planet"] = relationship(back_populates="favorites")
+    __tablename__ = "favorites"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    planet_id: Mapped[int] = mapped_column(ForeignKey('planet.id'), nullable=True)    
+    people_id: Mapped[int] = mapped_column(ForeignKey('people.id'), nullable=True)    
+
+    planet: Mapped["Planet"] = relationship(back_populates="favorites")
     people: Mapped["People"] = relationship(back_populates="favorites")
 
 # en algunas cosas pongo str porque a veces puede ser "unknown"    
     def serialize(self):
         return {
             "id": self.id,
-            "userid": self.userid,
-            "planetid": self.planetid,
-            "peopleid": self.peopleid,
+            "user_id": self.user_id,
+            "planet_id": self.planet_id,
+            "people_id": self.people_id,
         }
