@@ -13,9 +13,9 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     username: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
 
+    # realationship
     favorites: Mapped[list["Favorites"]] = relationship(back_populates="user")
-    user: Mapped ["User"] = relationship(back_populates="favorites")
-
+    
 class Planet(db.Model):
     __tablename__ = "planet"
 
@@ -25,6 +25,7 @@ class Planet(db.Model):
     terrain: Mapped[str] = mapped_column(String(100), nullable=False)
     population: Mapped[str] = mapped_column(String(100), nullable=False)
 
+    # realationship
     favorites: Mapped[list["Favorites"]] = relationship(back_populates="planet")
 
 class People(db.Model):
@@ -48,14 +49,10 @@ class Favorites(db.Model):
     planet_id: Mapped[int] = mapped_column(ForeignKey('planet.id'), nullable=True)    
     people_id: Mapped[int] = mapped_column(ForeignKey('people.id'), nullable=True)    
 
+    # realationship
     planet: Mapped["Planet"] = relationship(back_populates="favorites")
     people: Mapped["People"] = relationship(back_populates="favorites")
+    user: Mapped["User"] = relationship(back_populates="favorites")
 
 # en algunas cosas pongo str porque a veces puede ser "unknown"    
-    def serialize(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "planet_id": self.planet_id,
-            "people_id": self.people_id,
-        }
+
